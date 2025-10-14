@@ -18,19 +18,18 @@ const TrashIcon = () => (
 
 const MealPlanner: React.FC<MealPlannerProps> = ({ mealPlan, activeMeal, setActiveMeal, onRemoveFood }) => {
   return (
-    <div className="bg-dark-card rounded-xl shadow-xl p-6">
-      <h2 className="text-2xl font-bold mb-4 text-dark-text-primary border-b-2 border-dark-border pb-3">Plano de Refeições</h2>
+    <div className="bg-card border border-border rounded-xl shadow-sm p-6 transition-colors duration-300">
+      <h2 className="text-xl font-bold mb-4 text-card-foreground border-b border-border pb-3">Plano de Refeições</h2>
       
-      {/* Meal Tabs */}
-      <div className="flex border-b border-dark-border mb-4">
+      <div className="flex border-b border-border mb-4">
         {MEAL_TYPES_ORDER.map((mealType) => (
           <button
             key={mealType}
             onClick={() => setActiveMeal(mealType)}
-            className={`py-2 px-4 -mb-px font-semibold rounded-t-lg transition-colors duration-200 focus:outline-none ${
+            className={`py-2 px-4 -mb-px font-semibold text-sm rounded-t-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${
               activeMeal === mealType
-                ? 'bg-dark-card text-brand-accent border-b-2 border-brand-accent'
-                : 'text-dark-text-secondary hover:bg-dark-border/50'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-muted-foreground hover:bg-muted'
             }`}
           >
             {mealType}
@@ -38,24 +37,26 @@ const MealPlanner: React.FC<MealPlannerProps> = ({ mealPlan, activeMeal, setActi
         ))}
       </div>
 
-      {/* Selected Foods Grid */}
-      <div className="min-h-[200px] bg-dark-bg/50 rounded-lg p-4">
+      <div className="min-h-[200px] bg-secondary/50 rounded-lg p-4">
         {mealPlan[activeMeal].length === 0 ? (
-          <p className="text-center text-dark-text-secondary pt-16">Selecione alimentos do banco à esquerda.</p>
+          <div className="flex flex-col items-center justify-center h-full pt-12 text-center">
+            <p className="text-muted-foreground">Sua refeição está vazia.</p>
+            <p className="text-sm text-muted-foreground/80">Adicione alimentos do banco à esquerda.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {mealPlan[activeMeal].map((food) => (
-              <div key={food.instanceId} className="bg-dark-border rounded-lg p-3 flex flex-col justify-between shadow-md relative group">
+              <div key={food.instanceId} className="bg-card border border-border rounded-lg p-3 flex flex-col justify-between shadow-sm relative group transition-all hover:shadow-md hover:-translate-y-1">
                 <div>
-                  <h4 className="font-bold text-dark-text-primary">{food.name}</h4>
-                  <p className="text-xs text-dark-text-secondary">{food.quantity}</p>
+                  <h4 className="font-bold text-sm text-card-foreground">{food.name}</h4>
+                  <p className="text-xs text-muted-foreground">{food.quantity}</p>
                 </div>
-                <div className="text-right text-sm font-mono text-brand-accent mt-2">
+                <div className="text-right text-sm font-mono text-primary mt-2">
                   {food.calories.toFixed(0)} cal
                 </div>
                 <button 
                   onClick={() => onRemoveFood(food.instanceId, activeMeal)}
-                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full h-6 w-6 flex items-center justify-center font-bold text-sm hover:bg-red-500 transition-all opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100"
+                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm hover:bg-destructive/90 transition-all opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100"
                   aria-label={`Remover ${food.name}`}
                 >
                   <TrashIcon />

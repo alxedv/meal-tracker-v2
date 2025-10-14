@@ -6,7 +6,7 @@ interface AddFoodModalProps {
   onAddFood: (food: Omit<Food, 'id' | 'instanceId'>) => void;
 }
 
-type FoodInput = Omit<Food, 'id'>;
+type FoodInput = Omit<Food, 'id' | 'isRecipe' | 'ingredients'>;
 
 const initialFormState: FoodInput = {
     name: '',
@@ -28,6 +28,9 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({ onClose, onAddFood }) => {
             ...prev,
             [name]: name === 'name' || name === 'quantity' ? value : parseFloat(value) || 0
         }));
+         if (errors[name as keyof FoodInput]) {
+            setErrors(prev => ({ ...prev, [name]: undefined }));
+        }
     };
 
     const validate = () => {
@@ -52,50 +55,50 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({ onClose, onAddFood }) => {
 
   return (
     <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50"
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 animate-content-show"
         onClick={onClose}
     >
       <div 
-        className="bg-dark-card rounded-xl shadow-2xl p-8 w-full max-w-md m-4"
+        className="bg-card border border-border rounded-xl shadow-2xl p-8 w-full max-w-md m-4"
         onClick={e => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold mb-6 text-dark-text-primary border-b-2 border-dark-border pb-3">Adicionar Novo Alimento</h2>
+        <h2 className="text-xl font-bold mb-6 text-card-foreground border-b border-border pb-3">Adicionar Novo Alimento</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label htmlFor="name" className="block text-sm font-medium text-dark-text-secondary mb-1">Nome do Alimento</label>
-                <input type="text" name="name" id="name" value={foodData.name} onChange={handleChange} className="w-full bg-dark-bg border border-dark-border rounded-md px-3 py-2 focus:ring-brand-primary focus:border-brand-primary" />
-                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-1">Nome do Alimento</label>
+                <input type="text" name="name" id="name" value={foodData.name} onChange={handleChange} className="w-full bg-input border border-border rounded-md px-3 py-2 focus:ring-2 focus:ring-ring focus:border-ring" />
+                {errors.name && <p className="text-destructive text-xs mt-1">{errors.name}</p>}
             </div>
              <div>
-                <label htmlFor="quantity" className="block text-sm font-medium text-dark-text-secondary mb-1">Quantidade (ex: 100g, 1 fatia)</label>
-                <input type="text" name="quantity" id="quantity" value={foodData.quantity} onChange={handleChange} className="w-full bg-dark-bg border border-dark-border rounded-md px-3 py-2 focus:ring-brand-primary focus:border-brand-primary" />
-                {errors.quantity && <p className="text-red-500 text-xs mt-1">{errors.quantity}</p>}
+                <label htmlFor="quantity" className="block text-sm font-medium text-muted-foreground mb-1">Quantidade (ex: 100g, 1 fatia)</label>
+                <input type="text" name="quantity" id="quantity" value={foodData.quantity} onChange={handleChange} className="w-full bg-input border border-border rounded-md px-3 py-2 focus:ring-2 focus:ring-ring focus:border-ring" />
+                {errors.quantity && <p className="text-destructive text-xs mt-1">{errors.quantity}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div>
-                    <label htmlFor="calories" className="block text-sm font-medium text-dark-text-secondary mb-1">Calorias</label>
-                    <input type="number" name="calories" id="calories" value={foodData.calories} onChange={handleChange} className="w-full bg-dark-bg border border-dark-border rounded-md px-3 py-2 focus:ring-brand-primary focus:border-brand-primary" />
-                    {errors.calories && <p className="text-red-500 text-xs mt-1">{errors.calories}</p>}
+                    <label htmlFor="calories" className="block text-sm font-medium text-muted-foreground mb-1">Calorias</label>
+                    <input type="number" step="any" name="calories" id="calories" value={foodData.calories} onChange={handleChange} className="w-full bg-input border border-border rounded-md px-3 py-2 focus:ring-2 focus:ring-ring focus:border-ring" />
+                    {errors.calories && <p className="text-destructive text-xs mt-1">{errors.calories}</p>}
                 </div>
                  <div>
-                    <label htmlFor="protein" className="block text-sm font-medium text-dark-text-secondary mb-1">Proteínas (g)</label>
-                    <input type="number" name="protein" id="protein" value={foodData.protein} onChange={handleChange} className="w-full bg-dark-bg border border-dark-border rounded-md px-3 py-2 focus:ring-brand-primary focus:border-brand-primary" />
-                    {errors.protein && <p className="text-red-500 text-xs mt-1">{errors.protein}</p>}
+                    <label htmlFor="protein" className="block text-sm font-medium text-muted-foreground mb-1">Proteínas (g)</label>
+                    <input type="number" step="any" name="protein" id="protein" value={foodData.protein} onChange={handleChange} className="w-full bg-input border border-border rounded-md px-3 py-2 focus:ring-2 focus:ring-ring focus:border-ring" />
+                    {errors.protein && <p className="text-destructive text-xs mt-1">{errors.protein}</p>}
                 </div>
                  <div>
-                    <label htmlFor="carbohydrates" className="block text-sm font-medium text-dark-text-secondary mb-1">Carboidratos (g)</label>
-                    <input type="number" name="carbohydrates" id="carbohydrates" value={foodData.carbohydrates} onChange={handleChange} className="w-full bg-dark-bg border border-dark-border rounded-md px-3 py-2 focus:ring-brand-primary focus:border-brand-primary" />
-                    {errors.carbohydrates && <p className="text-red-500 text-xs mt-1">{errors.carbohydrates}</p>}
+                    <label htmlFor="carbohydrates" className="block text-sm font-medium text-muted-foreground mb-1">Carbs (g)</label>
+                    <input type="number" step="any" name="carbohydrates" id="carbohydrates" value={foodData.carbohydrates} onChange={handleChange} className="w-full bg-input border border-border rounded-md px-3 py-2 focus:ring-2 focus:ring-ring focus:border-ring" />
+                    {errors.carbohydrates && <p className="text-destructive text-xs mt-1">{errors.carbohydrates}</p>}
                 </div>
                 <div>
-                    <label htmlFor="fat" className="block text-sm font-medium text-dark-text-secondary mb-1">Gorduras (g)</label>
-                    <input type="number" name="fat" id="fat" value={foodData.fat} onChange={handleChange} className="w-full bg-dark-bg border border-dark-border rounded-md px-3 py-2 focus:ring-brand-primary focus:border-brand-primary" />
-                    {errors.fat && <p className="text-red-500 text-xs mt-1">{errors.fat}</p>}
+                    <label htmlFor="fat" className="block text-sm font-medium text-muted-foreground mb-1">Gorduras (g)</label>
+                    <input type="number" step="any" name="fat" id="fat" value={foodData.fat} onChange={handleChange} className="w-full bg-input border border-border rounded-md px-3 py-2 focus:ring-2 focus:ring-ring focus:border-ring" />
+                    {errors.fat && <p className="text-destructive text-xs mt-1">{errors.fat}</p>}
                 </div>
             </div>
              <div className="flex justify-end space-x-3 pt-4">
-                <button type="button" onClick={onClose} className="bg-slate-600 hover:bg-slate-500 text-dark-text-primary font-semibold py-2 px-4 rounded-lg transition-colors">Cancelar</button>
-                <button type="submit" className="bg-brand-primary hover:bg-brand-secondary text-white font-semibold py-2 px-4 rounded-lg transition-colors">Salvar Alimento</button>
+                <button type="button" onClick={onClose} className="bg-secondary hover:bg-muted text-secondary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">Cancelar</button>
+                <button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">Salvar Alimento</button>
             </div>
         </form>
       </div>

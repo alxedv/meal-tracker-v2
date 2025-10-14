@@ -4,6 +4,8 @@ import MealPlanner from './components/MealPlanner';
 import Summary from './components/Summary';
 import { Food, MealPlan, MealType, Nutrients } from './types';
 import { MEAL_TYPES_ORDER, DEFAULT_NUTRIENT_GOALS, DEFAULT_FOOD_DATABASE } from './constants';
+import ThemeSwitcher from './components/ThemeSwitcher';
+import CreateRecipeModal from './components/CreateRecipeModal';
 
 // Helper to load state from localStorage
 const loadState = <T,>(key: string, defaultValue: T): T => {
@@ -28,7 +30,8 @@ const App: React.FC = () => {
   const [activeMeal, setActiveMeal] = useState<MealType>(MEAL_TYPES_ORDER[0]);
   const [nutrientGoals, setNutrientGoals] = useState<Nutrients>(() => loadState('nutrientGoals', DEFAULT_NUTRIENT_GOALS));
   const [foodDatabase, setFoodDatabase] = useState<Food[]>(() => loadState('foodDatabase', DEFAULT_FOOD_DATABASE));
-  
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => loadState<'light' | 'dark'>('theme', 'dark'));
+
   // Save state to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('mealPlan', JSON.stringify(mealPlan));
@@ -42,6 +45,14 @@ const App: React.FC = () => {
     localStorage.setItem('foodDatabase', JSON.stringify(foodDatabase));
   }, [foodDatabase]);
 
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   const handleAddFoodToMeal = (food: Food) => {
     setMealPlan(prevPlan => {
@@ -57,6 +68,10 @@ const App: React.FC = () => {
         id: `${foodData.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`
     };
     setFoodDatabase(prevDB => [...prevDB, newFood]);
+  };
+
+  const handleAddRecipeToDB = (recipe: Food) => {
+    setFoodDatabase(prevDB => [...prevDB, recipe]);
   };
 
   const handleRemoveFood = (foodInstanceId: string, meal: MealType) => {
@@ -80,21 +95,25 @@ const App: React.FC = () => {
   }, [mealPlan]);
 
   return (
-    <div className="min-h-screen bg-dark-bg text-dark-text-primary font-sans">
+    <div className="min-h-screen bg-background text-foreground font-sans">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-accent">
-            Rastreador de Dieta
-          </h1>
-          <p className="text-dark-text-secondary mt-2 max-w-2xl mx-auto">Planeje suas refeições, controle macros e atinja suas metas nutricionais com facilidade.</p>
+        <header className="flex justify-between items-center mb-8">
+          <div className="text-left">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+              Meal Tracker
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">Planeje refeições, controle macros e atinja suas metas.</p>
+          </div>
+          <ThemeSwitcher theme={theme} setTheme={setTheme} />
         </header>
         
         <main className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 h-full">
             <FoodSelector 
               foodDatabase={foodDatabase}
               onAddFoodToMeal={handleAddFoodToMeal}
               onAddNewFoodToDB={handleAddNewFoodToDB}
+              onAddRecipeToDB={handleAddRecipeToDB}
             />
           </div>
           <div className="lg:col-span-3 space-y-6">

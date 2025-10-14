@@ -3,32 +3,111 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rastreador de Dieta Inteligente</title>
+    <title>Meal Tracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class', // Habilita o modo escuro baseado em classe
         theme: {
           extend: {
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              'brand-primary': '#22c55e', // green-500
-              'brand-secondary': '#16a34a', // green-600
-              'brand-accent': '#4ade80', // green-400
-              'dark-bg': '#0f172a', // slate-900
-              'dark-card': '#1e293b', // slate-800
-              'dark-border': '#334155', // slate-700
-              'dark-text-primary': '#f1f5f9', // slate-100
-              'dark-text-secondary': '#94a3b8', // slate-400
+              // Cores base para ambos os temas (usando variáveis CSS)
+              background: 'hsl(var(--background))',
+              foreground: 'hsl(var(--foreground))',
+              card: 'hsl(var(--card))',
+              'card-foreground': 'hsl(var(--card-foreground))',
+              popover: 'hsl(var(--popover))',
+              'popover-foreground': 'hsl(var(--popover-foreground))',
+              primary: 'hsl(var(--primary))',
+              'primary-foreground': 'hsl(var(--primary-foreground))',
+              secondary: 'hsl(var(--secondary))',
+              'secondary-foreground': 'hsl(var(--secondary-foreground))',
+              muted: 'hsl(var(--muted))',
+              'muted-foreground': 'hsl(var(--muted-foreground))',
+              accent: 'hsl(var(--accent))',
+              'accent-foreground': 'hsl(var(--accent-foreground))',
+              destructive: 'hsl(var(--destructive))',
+              'destructive-foreground': 'hsl(var(--destructive-foreground))',
+              border: 'hsl(var(--border))',
+              input: 'hsl(var(--input))',
+              ring: 'hsl(var(--ring))',
             },
+            keyframes: {
+              'content-show': {
+                from: { opacity: '0', transform: 'scale(0.96)' },
+                to: { opacity: '1', transform: 'scale(1)' },
+              },
+               'content-hide': {
+                from: { opacity: '1', transform: 'scale(1)' },
+                to: { opacity: '0', transform: 'scale(0.96)' },
+              },
+            },
+            animation: {
+              'content-show': 'content-show 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+              'content-hide': 'content-hide 150ms cubic-bezier(0.16, 1, 0.3, 1)',
+            }
           },
         },
       }
     </script>
+    <style>
+      /* Define as variáveis CSS para o tema claro (root) e escuro (.dark) */
+      :root {
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+        --primary: 142.1 76.2% 36.3%;
+        --primary-foreground: 355.7 100% 97.3%;
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 215.4 16.3% 46.9%;
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+        --accent: 142.1 70.6% 45.3%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 142.1 76.2% 36.3%;
+      }
+
+      .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 142.1 76.2% 36.3%;
+        --primary-foreground: 355.7 100% 97.3%;
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215.4 16.3% 56.9%;
+        --accent: 142.1 70.6% 45.3%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 142.1 76.2% 36.3%;
+      }
+      
+      body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+        transition: background-color 0.3s, color 0.3s;
+      }
+    </style>
   <script type="importmap">
 {
   "imports": {
@@ -39,7 +118,7 @@
 }
 </script>
 </head>
-  <body class="bg-dark-bg text-dark-text-primary">
+  <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
