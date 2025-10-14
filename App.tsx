@@ -11,9 +11,19 @@ import CreateRecipeModal from './components/CreateRecipeModal';
 const loadState = <T,>(key: string, defaultValue: T): T => {
   try {
     const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : defaultValue;
+    if (saved) {
+        // Fix for "dark" string being invalid JSON
+        if (key === 'theme' && (saved === 'dark' || saved === 'light')) {
+            return JSON.parse(`"${saved}"`);
+        }
+        return JSON.parse(saved);
+    }
+    return defaultValue;
   } catch (error) {
     console.error(`Error loading state for key "${key}" from localStorage`, error);
+    if (key === 'theme' && localStorage.getItem(key)) {
+        return localStorage.getItem(key) as T;
+    }
     return defaultValue;
   }
 };
@@ -62,13 +72,23 @@ const App: React.FC = () => {
     });
   };
   
-  const handleAddNewFoodToDB = (foodData: Omit<Food, 'id' | 'instanceId'>) => {
-    const newFood: Food = {
-        ...foodData,
-        id: `${foodData.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`
-    };
-    setFoodDatabase(prevDB => [...prevDB, newFood]);
+  // FIX: Corrected the type of foodData. 'instanceId' does not exist on Food.
+  const handleSaveFoodToDB = (foodData: Omit<Food, 'id'>, id?: string) => {
+    if (id) { // Editing existing food
+        setFoodDatabase(prevDB => prevDB.map(f => f.id === id ? { ...f, ...foodData } : f));
+    } else { // Adding new food
+        const newFood: Food = {
+            ...foodData,
+            id: `${foodData.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`
+        };
+        setFoodDatabase(prevDB => [...prevDB, newFood]);
+    }
   };
+
+  const handleDeleteFoodFromDB = (foodId: string) => {
+      setFoodDatabase(prevDB => prevDB.filter(f => f.id !== foodId));
+  };
+
 
   const handleAddRecipeToDB = (recipe: Food) => {
     setFoodDatabase(prevDB => [...prevDB, recipe]);
@@ -95,7 +115,7 @@ const App: React.FC = () => {
   }, [mealPlan]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans">
+    <div className="min-h-screen text-foreground font-sans">
       <div className="container mx-auto p-4 sm:p-6 lg:p-8">
         <header className="flex justify-between items-center mb-8">
           <div className="text-left">
@@ -112,7 +132,8 @@ const App: React.FC = () => {
             <FoodSelector 
               foodDatabase={foodDatabase}
               onAddFoodToMeal={handleAddFoodToMeal}
-              onAddNewFoodToDB={handleAddNewFoodToDB}
+              onSaveFoodToDB={handleSaveFoodToDB}
+              onDeleteFoodFromDB={handleDeleteFoodFromDB}
               onAddRecipeToDB={handleAddRecipeToDB}
             />
           </div>

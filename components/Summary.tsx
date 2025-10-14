@@ -58,32 +58,35 @@ const Summary: React.FC<SummaryProps> = ({ totals, goals, setGoals }) => {
         )}
       </div>
       <div className="space-y-6">
-        {(Object.keys(totals) as Array<keyof Nutrients>).map((key) => (
-          <div key={key}>
-            <div className="flex justify-between items-baseline mb-2">
-              <span className="font-semibold text-card-foreground">{NUTRIENT_LABELS[key]}</span>
-              <div className="flex items-baseline space-x-2">
-                 <span className="text-sm font-mono text-primary">
-                  {totals[key].toFixed(1)}
-                </span>
-                <span className="text-muted-foreground">/</span>
-                {isEditing ? (
-                   <input 
-                      type="number"
-                      value={editableGoals[key]}
-                      onChange={(e) => handleGoalChange(key, e.target.value)}
-                      className="w-20 text-sm font-mono bg-input border border-border text-right px-2 py-1 rounded-md"
-                   />
-                ) : (
-                  <span className="text-sm font-mono text-muted-foreground">
-                    {goals[key]}
+        {(Object.keys(totals) as Array<keyof Nutrients>).map((key) => {
+          const isOverGoal = totals[key] > goals[key] && goals[key] > 0;
+          return (
+            <div key={key}>
+              <div className="flex justify-between items-baseline mb-2">
+                <span className="font-semibold text-card-foreground">{NUTRIENT_LABELS[key]}</span>
+                <div className="flex items-baseline space-x-2">
+                   <span className={`text-sm font-mono ${isOverGoal ? 'text-destructive' : 'text-primary'}`}>
+                    {totals[key].toFixed(1)}
                   </span>
-                )}
+                  <span className="text-muted-foreground">/</span>
+                  {isEditing ? (
+                     <input 
+                        type="number"
+                        value={editableGoals[key]}
+                        onChange={(e) => handleGoalChange(key, e.target.value)}
+                        className="w-20 text-sm font-mono bg-input border border-border text-right px-2 py-1 rounded-md"
+                     />
+                  ) : (
+                    <span className="text-sm font-mono text-muted-foreground">
+                      {goals[key]}
+                    </span>
+                  )}
+                </div>
               </div>
+              <ProgressBar value={totals[key]} max={goals[key]} />
             </div>
-            <ProgressBar value={totals[key]} max={goals[key]} />
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   );

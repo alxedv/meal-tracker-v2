@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Food } from '../types';
 
 interface AddFoodModalProps {
   onClose: () => void;
-  onAddFood: (food: Omit<Food, 'id' | 'instanceId'>) => void;
+  // FIX: Corrected the type of the food parameter in onSave. 'instanceId' does not exist on Food.
+  onSave: (food: Omit<Food, 'id'>, id?: string) => void;
+  foodToEdit?: Food;
 }
 
+// FIX: Corrected the FoodInput type to properly omit fields not present in the form, and removed non-existent 'instanceId'.
 type FoodInput = Omit<Food, 'id' | 'isRecipe' | 'ingredients'>;
 
 const initialFormState: FoodInput = {
@@ -18,9 +21,17 @@ const initialFormState: FoodInput = {
 };
 
 
-const AddFoodModal: React.FC<AddFoodModalProps> = ({ onClose, onAddFood }) => {
+const AddFoodModal: React.FC<AddFoodModalProps> = ({ onClose, onSave, foodToEdit }) => {
     const [foodData, setFoodData] = useState<FoodInput>(initialFormState);
     const [errors, setErrors] = useState<Partial<Record<keyof FoodInput, string>>>({});
+
+    useEffect(() => {
+        if (foodToEdit) {
+            // FIX: Removed 'instanceId' from destructuring, as it does not exist on type 'Food'.
+            const { id, isRecipe, ingredients, ...editableData } = foodToEdit;
+            setFoodData(editableData);
+        }
+    }, [foodToEdit]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -48,10 +59,13 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({ onClose, onAddFood }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (validate()) {
-            onAddFood(foodData);
+            onSave(foodData, foodToEdit?.id);
             onClose();
         }
     };
+
+    const modalTitle = foodToEdit ? "Editar Alimento" : "Adicionar Novo Alimento";
+    const submitButtonText = foodToEdit ? "Salvar Alterações" : "Salvar Alimento";
 
   return (
     <div 
@@ -62,7 +76,7 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({ onClose, onAddFood }) => {
         className="bg-card border border-border rounded-xl shadow-2xl p-8 w-full max-w-md m-4"
         onClick={e => e.stopPropagation()}
       >
-        <h2 className="text-xl font-bold mb-6 text-card-foreground border-b border-border pb-3">Adicionar Novo Alimento</h2>
+        <h2 className="text-xl font-bold mb-6 text-card-foreground border-b border-border pb-3">{modalTitle}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
                 <label htmlFor="name" className="block text-sm font-medium text-muted-foreground mb-1">Nome do Alimento</label>
@@ -98,7 +112,7 @@ const AddFoodModal: React.FC<AddFoodModalProps> = ({ onClose, onAddFood }) => {
             </div>
              <div className="flex justify-end space-x-3 pt-4">
                 <button type="button" onClick={onClose} className="bg-secondary hover:bg-muted text-secondary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">Cancelar</button>
-                <button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">Salvar Alimento</button>
+                <button type="submit" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">{submitButtonText}</button>
             </div>
         </form>
       </div>

@@ -6,7 +6,9 @@ import CreateRecipeModal from './CreateRecipeModal';
 interface FoodSelectorProps {
   foodDatabase: Food[];
   onAddFoodToMeal: (food: Food) => void;
-  onAddNewFoodToDB: (food: Omit<Food, 'id' | 'instanceId'>) => void;
+  // FIX: Corrected the type of the food parameter in onSaveFoodToDB. 'instanceId' does not exist on Food.
+  onSaveFoodToDB: (food: Omit<Food, 'id'>, id?:string) => void;
+  onDeleteFoodFromDB: (foodId: string) => void;
   onAddRecipeToDB: (recipe: Food) => void;
 }
 
@@ -23,14 +25,42 @@ const RecipeIcon = () => (
     </svg>
 );
 
+const EditIcon = (props: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={props.className || "h-4 w-4"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+    </svg>
+);
 
-const FoodSelector: React.FC<FoodSelectorProps> = ({ foodDatabase, onAddFoodToMeal, onAddNewFoodToDB, onAddRecipeToDB }) => {
-  const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
+const TrashIcon = (props: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={props.className || "h-4 w-4"} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+);
+
+
+const FoodSelector: React.FC<FoodSelectorProps> = ({ foodDatabase, onAddFoodToMeal, onSaveFoodToDB, onDeleteFoodFromDB, onAddRecipeToDB }) => {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [foodToEdit, setFoodToEdit] = useState<Food | null>(null);
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false);
+
+  const handleDelete = (foodId: string, foodName: string) => {
+    if (window.confirm(`Tem certeza que deseja excluir "${foodName}"? Esta ação não pode ser desfeita.`)) {
+        onDeleteFoodFromDB(foodId);
+    }
+  };
 
   return (
     <>
-      {isAddFoodModalOpen && <AddFoodModal onClose={() => setIsAddFoodModalOpen(false)} onAddFood={onAddNewFoodToDB} />}
+      {(isAddModalOpen || foodToEdit) && (
+        <AddFoodModal 
+            onClose={() => {
+                setIsAddModalOpen(false);
+                setFoodToEdit(null);
+            }} 
+            onSave={onSaveFoodToDB}
+            foodToEdit={foodToEdit ?? undefined} 
+        />
+      )}
       {isRecipeModalOpen && <CreateRecipeModal foodDatabase={foodDatabase} onClose={() => setIsRecipeModalOpen(false)} onAddRecipe={onAddRecipeToDB} />}
 
       <div className="bg-card border border-border rounded-xl shadow-sm p-6 h-full flex flex-col transition-colors duration-300">
@@ -45,7 +75,7 @@ const FoodSelector: React.FC<FoodSelectorProps> = ({ foodDatabase, onAddFoodToMe
                     <span className="ml-1.5">Criar Receita</span>
                 </button>
                 <button 
-                    onClick={() => setIsAddFoodModalOpen(true)}
+                    onClick={() => setIsAddModalOpen(true)}
                     className="flex items-center text-xs sm:text-sm bg-primary/90 hover:bg-primary text-primary-foreground font-semibold py-2 px-3 rounded-lg transition-colors"
                 >
                     <PlusIcon className="h-4 w-4" />
@@ -54,29 +84,53 @@ const FoodSelector: React.FC<FoodSelectorProps> = ({ foodDatabase, onAddFoodToMe
             </div>
         </div>
         <div className="flex-grow overflow-y-auto -mr-3 pr-3">
-            <ul className="space-y-2">
+            <ul className="space-y-0">
                 {foodDatabase.map((food) => (
-                <li key={food.id} className="group flex items-center justify-between p-3 rounded-lg hover:bg-secondary transition-colors">
-                    <div className="flex-1 flex items-center">
-                       {food.isRecipe && <span className="mr-3"><RecipeIcon /></span>}
-                       <div>
-                            <p className="font-semibold text-card-foreground">{food.name}</p>
+                <li key={food.id} className="group flex items-center justify-between p-3 rounded-lg hover:bg-secondary transition-colors border-b border-border last:border-b-0">
+                    <div className="flex-1 flex items-center min-w-0">
+                       {food.isRecipe && <span className="mr-3 flex-shrink-0"><RecipeIcon /></span>}
+                       <div className="min-w-0">
+                            <p className="font-semibold text-card-foreground truncate">{food.name}</p>
                             <p className="text-xs text-muted-foreground">{food.quantity}</p>
                        </div>
                     </div>
-                    <div className="hidden sm:flex items-center space-x-3 text-xs font-mono text-center w-[45%]">
-                        <span className="w-1/4">{food.calories.toFixed(0)} <span className="text-muted-foreground/70">Cal</span></span>
-                        <span className="w-1/4">{food.carbohydrates.toFixed(1)} <span className="text-muted-foreground/70">C</span></span>
-                        <span className="w-1/4">{food.fat.toFixed(1)} <span className="text-muted-foreground/70">G</span></span>
-                        <span className="w-1/4">{food.protein.toFixed(1)} <span className="text-muted-foreground/70">P</span></span>
+                    
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 sm:flex sm:items-center sm:space-x-3 text-xs font-mono ml-2 flex-shrink-0">
+                        <span className="text-right sm:text-center">{food.calories.toFixed(0)}<span className="text-muted-foreground/70"> Cal</span></span>
+                        <span className="text-right sm:text-center">{food.carbohydrates.toFixed(1)}<span className="text-muted-foreground/70"> C</span></span>
+                        <span className="text-right sm:text-center">{food.fat.toFixed(1)}<span className="text-muted-foreground/70"> G</span></span>
+                        <span className="text-right sm:text-center">{food.protein.toFixed(1)}<span className="text-muted-foreground/70"> P</span></span>
                     </div>
-                    <button
-                        onClick={() => onAddFoodToMeal(food)}
-                        className="ml-4 p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors"
-                        aria-label={`Adicionar ${food.name}`}
-                    >
-                        <PlusIcon className="h-4 w-4"/>
-                    </button>
+
+                    <div className="flex items-center ml-4 space-x-0.5 flex-shrink-0">
+                        <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            {!food.isRecipe && (
+                                <>
+                                <button
+                                    onClick={() => setFoodToEdit(food)}
+                                    className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md"
+                                    aria-label={`Editar ${food.name}`}
+                                >
+                                    <EditIcon className="h-4 w-4" />
+                                </button>
+                                <button
+                                    onClick={() => handleDelete(food.id, food.name)}
+                                    className="p-1.5 text-destructive/80 hover:text-destructive hover:bg-destructive/10 rounded-md"
+                                    aria-label={`Excluir ${food.name}`}
+                                >
+                                    <TrashIcon className="h-4 w-4" />
+                                </button>
+                                </>
+                            )}
+                        </div>
+                        <button
+                            onClick={() => onAddFoodToMeal(food)}
+                            className="p-2 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors"
+                            aria-label={`Adicionar ${food.name}`}
+                        >
+                            <PlusIcon className="h-4 w-4"/>
+                        </button>
+                    </div>
                 </li>
                 ))}
             </ul>
