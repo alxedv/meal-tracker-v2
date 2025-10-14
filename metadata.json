@@ -1,0 +1,5 @@
+{
+  "name": "Rastreador de Dieta Inteligente",
+  "description": "Um aplicativo para selecionar alimentos, rastrear macronutrientes e calorias para cada refeição ao longo do dia, ajudando você a atingir suas metas de dieta.",
+  "requestFramePermissions": []
+}
