@@ -2,10 +2,11 @@ import React, { useState, useMemo, useEffect } from 'react';
 import FoodSelector from './components/FoodSelector';
 import MealPlanner from './components/MealPlanner';
 import Summary from './components/Summary';
-import { Food, MealPlan, MealType, Nutrients } from './types';
+import { Food, MealPlan, MealType, Nutrients, WeightEntry } from './types';
 import { MEAL_TYPES_ORDER, DEFAULT_NUTRIENT_GOALS, DEFAULT_FOOD_DATABASE } from './constants';
 import ThemeSwitcher from './components/ThemeSwitcher';
-import CreateRecipeModal from './components/CreateRecipeModal';
+import WeightTracker from './components/WeightTracker';
+
 
 // Helper to load state from localStorage
 const loadState = <T,>(key: string, defaultValue: T): T => {
@@ -41,6 +42,8 @@ const App: React.FC = () => {
   const [nutrientGoals, setNutrientGoals] = useState<Nutrients>(() => loadState('nutrientGoals', DEFAULT_NUTRIENT_GOALS));
   const [foodDatabase, setFoodDatabase] = useState<Food[]>(() => loadState('foodDatabase', DEFAULT_FOOD_DATABASE));
   const [theme, setTheme] = useState<'light' | 'dark'>(() => loadState<'light' | 'dark'>('theme', 'dark'));
+  const [weightHistory, setWeightHistory] = useState<WeightEntry[]>(() => loadState('weightHistory', []));
+
 
   // Save state to localStorage whenever it changes
   useEffect(() => {
@@ -54,6 +57,10 @@ const App: React.FC = () => {
   useEffect(() => {
     localStorage.setItem('foodDatabase', JSON.stringify(foodDatabase));
   }, [foodDatabase]);
+
+  useEffect(() => {
+    localStorage.setItem('weightHistory', JSON.stringify(weightHistory));
+  }, [weightHistory]);
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
@@ -72,7 +79,6 @@ const App: React.FC = () => {
     });
   };
   
-  // FIX: Corrected the type of foodData. 'instanceId' does not exist on Food.
   const handleSaveFoodToDB = (foodData: Omit<Food, 'id'>, id?: string) => {
     if (id) { // Editing existing food
         setFoodDatabase(prevDB => prevDB.map(f => f.id === id ? { ...f, ...foodData } : f));
@@ -101,14 +107,31 @@ const App: React.FC = () => {
     });
   };
 
+  const handleAddWeightEntry = (entry: Omit<WeightEntry, 'id'>) => {
+    const newEntry: WeightEntry = {
+      ...entry,
+      id: `${entry.date}-${Date.now()}`
+    };
+    setWeightHistory(prev => [...prev, newEntry]);
+  };
+
+  const handleRemoveWeightEntry = (id: string) => {
+    setWeightHistory(prev => prev.filter(entry => entry.id !== id));
+  };
+
   const totalNutrients = useMemo<Nutrients>(() => {
     const totals: Nutrients = { calories: 0, carbohydrates: 0, fat: 0, protein: 0 };
     for (const meal of Object.values(mealPlan)) {
-      for (const food of meal) {
-        totals.calories += food.calories;
-        totals.carbohydrates += food.carbohydrates;
-        totals.fat += food.fat;
-        totals.protein += food.protein;
+      // FIX: Add a check to ensure 'meal' is an array before iterating.
+      // This prevents runtime errors if mealPlan is loaded from localStorage
+      // with an unexpected structure, and satisfies the compiler.
+      if (Array.isArray(meal)) {
+        for (const food of meal) {
+          totals.calories += food.calories;
+          totals.carbohydrates += food.carbohydrates;
+          totals.fat += food.fat;
+          totals.protein += food.protein;
+        }
       }
     }
     return totals;
@@ -144,11 +167,18 @@ const App: React.FC = () => {
               setActiveMeal={setActiveMeal}
               onRemoveFood={handleRemoveFood}
             />
-            <Summary 
-              totals={totalNutrients} 
-              goals={nutrientGoals}
-              setGoals={setNutrientGoals}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Summary 
+                totals={totalNutrients} 
+                goals={nutrientGoals}
+                setGoals={setNutrientGoals}
+              />
+               <WeightTracker 
+                    history={weightHistory}
+                    addEntry={handleAddWeightEntry}
+                    removeEntry={handleRemoveWeightEntry}
+                />
+            </div>
           </div>
         </main>
       </div>

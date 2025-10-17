@@ -35,3 +35,9 @@ export enum MealType {
 }
 
 export type MealPlan = Record<MealType, SelectedFood[]>;
+
+export interface WeightEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  weight: number;
+}

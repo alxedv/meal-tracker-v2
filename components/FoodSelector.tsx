@@ -95,11 +95,23 @@ const FoodSelector: React.FC<FoodSelectorProps> = ({ foodDatabase, onAddFoodToMe
                        </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 sm:flex sm:items-center sm:space-x-3 text-xs font-mono ml-2 flex-shrink-0">
-                        <span className="text-right sm:text-center">{food.calories.toFixed(0)}<span className="text-muted-foreground/70"> Cal</span></span>
-                        <span className="text-right sm:text-center">{food.carbohydrates.toFixed(1)}<span className="text-muted-foreground/70"> C</span></span>
-                        <span className="text-right sm:text-center">{food.fat.toFixed(1)}<span className="text-muted-foreground/70"> G</span></span>
-                        <span className="text-right sm:text-center">{food.protein.toFixed(1)}<span className="text-muted-foreground/70"> P</span></span>
+                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-1 text-xs font-mono ml-3 flex-shrink-0 text-center sm:w-60 md:w-64">
+                        <div>
+                            <span className="font-semibold text-card-foreground">{food.calories.toFixed(0)}</span>
+                            <span className="block text-muted-foreground/80 text-[10px] leading-tight">Calorias</span>
+                        </div>
+                        <div>
+                            <span className="font-semibold text-card-foreground">{food.protein.toFixed(1)}g</span>
+                            <span className="block text-muted-foreground/80 text-[10px] leading-tight">Proteína</span>
+                        </div>
+                        <div>
+                            <span className="font-semibold text-card-foreground">{food.carbohydrates.toFixed(1)}g</span>
+                            <span className="block text-muted-foreground/80 text-[10px] leading-tight">Carbs</span>
+                        </div>
+                        <div>
+                            <span className="font-semibold text-card-foreground">{food.fat.toFixed(1)}g</span>
+                            <span className="block text-muted-foreground/80 text-[10px] leading-tight">Gordura</span>
+                        </div>
                     </div>
 
                     <div className="flex items-center ml-4 space-x-0.5 flex-shrink-0">
