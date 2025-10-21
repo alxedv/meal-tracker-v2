@@ -63,9 +63,8 @@ const FoodSelector: React.FC<FoodSelectorProps> = ({ foodDatabase, onAddFoodToMe
       )}
       {isRecipeModalOpen && <CreateRecipeModal foodDatabase={foodDatabase} onClose={() => setIsRecipeModalOpen(false)} onAddRecipe={onAddRecipeToDB} />}
 
-      <div className="bg-card border border-border rounded-xl shadow-sm p-6 h-full flex flex-col transition-colors duration-300">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-border pb-3 gap-3">
-            <h2 className="text-xl font-bold text-card-foreground">Banco de Alimentos</h2>
+      <div className="h-full flex flex-col -mt-2">
+        <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center mb-4 gap-3">
             <div className="flex items-center space-x-2">
                  <button 
                     onClick={() => setIsRecipeModalOpen(true)}
@@ -83,7 +82,7 @@ const FoodSelector: React.FC<FoodSelectorProps> = ({ foodDatabase, onAddFoodToMe
                 </button>
             </div>
         </div>
-        <div className="flex-grow overflow-y-auto -mr-3 pr-3">
+        <div className="flex-grow overflow-y-auto -mr-3 pr-3 max-h-[400px]">
             <ul className="space-y-0">
                 {foodDatabase.map((food) => (
                 <li key={food.id} className="group flex items-center justify-between p-3 rounded-lg hover:bg-secondary transition-colors border-b border-border last:border-b-0">

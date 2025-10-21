@@ -18,10 +18,8 @@ const TrashIcon = () => (
 
 const MealPlanner: React.FC<MealPlannerProps> = ({ mealPlan, activeMeal, setActiveMeal, onRemoveFood }) => {
   return (
-    <div className="bg-card border border-border rounded-xl shadow-sm p-6 transition-colors duration-300">
-      <h2 className="text-xl font-bold mb-4 text-card-foreground border-b border-border pb-3">Plano de Refeições</h2>
-      
-      <div className="flex border-b border-border mb-4">
+    <>
+      <div className="flex border-b border-border mb-4 -mt-2">
         {MEAL_TYPES_ORDER.map((mealType) => (
           <button
             key={mealType}
@@ -66,7 +64,7 @@ const MealPlanner: React.FC<MealPlannerProps> = ({ mealPlan, activeMeal, setActi
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 };
 

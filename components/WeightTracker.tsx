@@ -154,9 +154,8 @@ const WeightTracker: React.FC<WeightTrackerProps> = ({ history, addEntry, remove
     };
 
     return (
-        <div className="bg-card border border-border rounded-xl shadow-sm p-6 transition-colors duration-300 h-full flex flex-col">
-            <div className="flex justify-between items-center mb-4 border-b border-border pb-3">
-                <h2 className="text-xl font-bold text-card-foreground">Progresso de Peso</h2>
+        <div className="h-full flex flex-col -mt-2">
+            <div className="flex justify-end items-center mb-4">
                 <div className="flex items-center bg-secondary rounded-lg p-1">
                     <button onClick={() => setView('chart')} className={`p-1.5 rounded-md ${view === 'chart' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground'}`}><ChartIcon/></button>
                     <button onClick={() => setView('list')} className={`p-1.5 rounded-md ${view === 'list' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground'}`}><ListIcon/></button>

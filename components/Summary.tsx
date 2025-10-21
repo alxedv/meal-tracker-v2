@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Nutrients } from '../types';
-import ProgressBar from './ProgressBar';
 import { NUTRIENT_LABELS } from '../constants';
+import CircularProgressBar from './CircularProgressBar';
 
 interface SummaryProps {
   totals: Nutrients;
@@ -42,9 +42,9 @@ const Summary: React.FC<SummaryProps> = ({ totals, goals, setGoals }) => {
   };
 
   return (
-    <div className="bg-card border border-border rounded-xl shadow-sm p-6 transition-colors duration-300">
-      <div className="flex justify-between items-center mb-6 border-b border-border pb-3">
-        <h2 className="text-xl font-bold text-card-foreground">Resumo Nutricional</h2>
+    <div className="bg-card border border-border rounded-xl shadow-sm p-4 sm:p-6 transition-colors duration-300">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-card-foreground">Resumo de Hoje</h2>
         {!isEditing ? (
           <button onClick={() => setIsEditing(true)} className="flex items-center text-sm bg-secondary hover:bg-muted text-secondary-foreground font-semibold py-2 px-4 rounded-lg transition-colors">
             <EditIcon />
@@ -57,37 +57,60 @@ const Summary: React.FC<SummaryProps> = ({ totals, goals, setGoals }) => {
           </div>
         )}
       </div>
-      <div className="space-y-6">
-        {(Object.keys(totals) as Array<keyof Nutrients>).map((key) => {
-          const isOverGoal = totals[key] > goals[key] && goals[key] > 0;
-          return (
-            <div key={key}>
-              <div className="flex justify-between items-baseline mb-2">
-                <span className="font-semibold text-card-foreground">{NUTRIENT_LABELS[key]}</span>
-                <div className="flex items-baseline space-x-2">
-                   <span className={`text-sm font-mono ${isOverGoal ? 'text-destructive' : 'text-primary'}`}>
-                    {totals[key].toFixed(1)}
-                  </span>
-                  <span className="text-muted-foreground">/</span>
-                  {isEditing ? (
-                     <input 
+      
+      {isEditing ? (
+        <div className="space-y-4 animate-content-show">
+            {(Object.keys(goals) as Array<keyof Nutrients>).map((key) => (
+                <div key={key} className="flex justify-between items-center">
+                    <label htmlFor={key} className="font-semibold text-card-foreground">{NUTRIENT_LABELS[key]}</label>
+                    <input 
+                        id={key}
                         type="number"
                         value={editableGoals[key]}
                         onChange={(e) => handleGoalChange(key, e.target.value)}
-                        className="w-20 text-sm font-mono bg-input border border-border text-right px-2 py-1 rounded-md"
-                     />
-                  ) : (
-                    <span className="text-sm font-mono text-muted-foreground">
-                      {goals[key]}
-                    </span>
-                  )}
+                        className="w-24 text-sm font-mono bg-input border border-border text-right px-2 py-1 rounded-md"
+                    />
                 </div>
-              </div>
-              <ProgressBar value={totals[key]} max={goals[key]} />
+            ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-6 animate-content-show">
+            <CircularProgressBar
+                value={totals.calories}
+                max={goals.calories}
+                label={NUTRIENT_LABELS.calories}
+                unit="kcal"
+                size={160}
+                strokeWidth={14}
+            />
+            <div className="grid grid-cols-3 gap-4 sm:gap-8 w-full max-w-sm">
+                 <CircularProgressBar
+                    value={totals.protein}
+                    max={goals.protein}
+                    label={NUTRIENT_LABELS.protein}
+                    unit="g"
+                    size={90}
+                    strokeWidth={8}
+                />
+                 <CircularProgressBar
+                    value={totals.carbohydrates}
+                    max={goals.carbohydrates}
+                    label={NUTRIENT_LABELS.carbohydrates}
+                    unit="g"
+                    size={90}
+                    strokeWidth={8}
+                />
+                 <CircularProgressBar
+                    value={totals.fat}
+                    max={goals.fat}
+                    label={NUTRIENT_LABELS.fat}
+                    unit="g"
+                    size={90}
+                    strokeWidth={8}
+                />
             </div>
-          )
-        })}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { Food, MealPlan, MealType, Nutrients, WeightEntry } from './types';
 import { MEAL_TYPES_ORDER, DEFAULT_NUTRIENT_GOALS, DEFAULT_FOOD_DATABASE } from './constants';
 import ThemeSwitcher from './components/ThemeSwitcher';
 import WeightTracker from './components/WeightTracker';
+import Accordion from './components/Accordion';
 
 
 // Helper to load state from localStorage
@@ -150,36 +151,39 @@ const App: React.FC = () => {
           <ThemeSwitcher theme={theme} setTheme={setTheme} />
         </header>
         
-        <main className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-2 h-full">
-            <FoodSelector 
-              foodDatabase={foodDatabase}
-              onAddFoodToMeal={handleAddFoodToMeal}
-              onSaveFoodToDB={handleSaveFoodToDB}
-              onDeleteFoodFromDB={handleDeleteFoodFromDB}
-              onAddRecipeToDB={handleAddRecipeToDB}
-            />
-          </div>
-          <div className="lg:col-span-3 space-y-6">
-            <MealPlanner
-              mealPlan={mealPlan}
-              activeMeal={activeMeal}
-              setActiveMeal={setActiveMeal}
-              onRemoveFood={handleRemoveFood}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Summary 
+        <main className="flex flex-col gap-6">
+            <Summary 
                 totals={totalNutrients} 
                 goals={nutrientGoals}
                 setGoals={setNutrientGoals}
-              />
-               <WeightTracker 
+            />
+
+            <Accordion title="Progresso de Peso" startOpen={true}>
+                 <WeightTracker 
                     history={weightHistory}
                     addEntry={handleAddWeightEntry}
                     removeEntry={handleRemoveWeightEntry}
                 />
-            </div>
-          </div>
+            </Accordion>
+            
+            <Accordion title="Plano de Refeições" startOpen={true}>
+                 <MealPlanner
+                    mealPlan={mealPlan}
+                    activeMeal={activeMeal}
+                    setActiveMeal={setActiveMeal}
+                    onRemoveFood={handleRemoveFood}
+                />
+            </Accordion>
+
+            <Accordion title="Banco de Alimentos">
+                <FoodSelector 
+                    foodDatabase={foodDatabase}
+                    onAddFoodToMeal={handleAddFoodToMeal}
+                    onSaveFoodToDB={handleSaveFoodToDB}
+                    onDeleteFoodFromDB={handleDeleteFoodFromDB}
+                    onAddRecipeToDB={handleAddRecipeToDB}
+                />
+            </Accordion>
         </main>
       </div>
     </div>
